@@ -11,7 +11,13 @@ class puppet_remote (
   class { 'nfs':
     server_enabled => true,
   } ->
-  nfs::server::export { '/opt/puppetlabs':
+  nfs::server::export { "${puppet_vardir}/remote/agents":
+    ensure  => 'mounted',
+    clients => '*(rw,sync,no_root_squash)',
+  } ->
+# This is temp. Long term the face should handle the creation of a specific
+# export with the proper permissions to preserve ssl private key security
+  nfs::server::export { "${puppet_vardir}/remote/nodes":
     ensure  => 'mounted',
     clients => '*(rw,sync,no_root_squash)',
   }
