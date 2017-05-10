@@ -71,7 +71,7 @@ Puppet::Face.define(:remote, '0.0.1') do
       Array.new(thread_count) do
         Thread.new(nodes, completed_nodes, options) do |nodes_thread, completed_nodes_thread, options_thread|
           target = mutex.synchronize { nodes_thread.pop }
-          while target
+#          while target
             Puppet.notice("Processing target: #{target}")
             begin
               node = Chloride::Host.new(target, @config)
@@ -89,10 +89,10 @@ Puppet::Face.define(:remote, '0.0.1') do
                 host: node,
                 sudo: use_sudo,
                 cmd:  "bash -c \"\
-                  mkdir /opt/puppetlabs  &&\
-                  mkdir /etc/puppetlabs &&\
-                  mount #{server}:/opt/puppetlabs/puppet/cache/remote/agents/puppet-agent-1.9.3-1.el7.x86_64/opt/puppetlabs /opt/puppetlabs &&\
-                  mount #{server}:/opt/puppetlabs/puppet/cache/remote/nodes/#{node} /etc/puppetlabs &&\
+                  mkdir -p /opt/puppetlabs  &&\
+                  mkdir -p /etc/puppetlabs &&\
+                  if mount | grep '/opt/puppetlabs '; then echo '/opt/puppetlabs already mounted'; else mount #{server}:/opt/puppetlabs/puppet/cache/remote/agents/puppet-agent-1.9.3-1.el7.x86_64/opt/puppetlabs /opt/puppetlabs; fi &&\
+                  if mount | grep '/etc/puppetlabs '; then echo '/etc/puppetlabs already mounted'; else mount #{server}:/opt/puppetlabs/puppet/cache/remote/nodes/#{node} /etc/puppetlabs; fi &&\
                   /opt/puppetlabs/bin/puppet agent -t &&\
                   umount /opt/puppetlabs &&\
                   umount /etc/puppetlabs &&\
@@ -121,7 +121,7 @@ Puppet::Face.define(:remote, '0.0.1') do
                 end
               end
               if install.success?
-                mutex.synchronize { completed_nodes_thread << Hash[target => install.results[target][:exit_status]] }
+                mutex.synchronize { completed_nodes << Hash[target => install.results[target][:exit_status]] }
               else
                 mutex.synchronize { failed_nodes << Hash[target => install.results[target][:exit_status]] }
                 Puppet.err "Node: #{target} failed"
@@ -130,7 +130,7 @@ Puppet::Face.define(:remote, '0.0.1') do
               Puppet.err("target:#{target} error:#{e}")
               mutex.synchronize { failed_nodes << Hash[target => e.to_s] }
             end
-          end
+#          end
         end
       end.each(&:join)
       results << completed_nodes
