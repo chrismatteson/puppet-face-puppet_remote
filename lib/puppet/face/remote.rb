@@ -66,6 +66,7 @@ Puppet::Face.define(:remote, '0.0.1') do
       failed_nodes    = []
       results         = []
       mutex           = Mutex.new
+      server          = Puppet.settings[:server]
 
       Array.new(thread_count) do
         Thread.new(nodes, completed_nodes, options) do |nodes_thread, completed_nodes_thread, options_thread|
@@ -90,8 +91,8 @@ Puppet::Face.define(:remote, '0.0.1') do
                 cmd:  "bash -c \"\
                   mkdir /opt/puppetlabs  &&\
                   mkdir /etc/puppetlabs &&\
-                  mount master.inf.puppet.vm:/opt/puppetlabs/puppet/cache/remote/agents/puppet-agent-1.9.3-1.el7.x86_64/opt/puppetlabs /opt/puppetlabs &&\
-                  mount master.inf.puppet.vm:/opt/puppetlabs/puppet/cache/remote/nodes/#{node} /etc/puppetlabs &&\
+                  mount #{server}:/opt/puppetlabs/puppet/cache/remote/agents/puppet-agent-1.9.3-1.el7.x86_64/opt/puppetlabs /opt/puppetlabs &&\
+                  mount #{server}:/opt/puppetlabs/puppet/cache/remote/nodes/#{node} /etc/puppetlabs &&\
                   /opt/puppetlabs/bin/puppet agent -t &&\
                   umount /opt/puppetlabs &&\
                   umount /etc/puppetlabs &&\
