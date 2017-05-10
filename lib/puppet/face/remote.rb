@@ -75,6 +75,15 @@ Puppet::Face.define(:remote, '0.0.1') do
             Puppet.notice("Processing target: #{target}")
             begin
               node = Chloride::Host.new(target, @config)
+              dirname = "/opt/puppetlabs/puppet/cache/remote/nodes/#{node}/puppet"
+              unless File.directory?(dirname)
+                FileUtils.mkdir_p(dirname)
+              end
+              File.open("#{dirname}/puppet.conf", "w+") {|f|
+                f << "[main]\n"
+                f << "certname = #{node}\n"
+                f << "server = #{server}\n"
+              }
               node.ssh_connect
               Puppet.debug("SSH status: #{node.ssh_status}")
               if [:error, :disconnected].include? node.ssh_status
