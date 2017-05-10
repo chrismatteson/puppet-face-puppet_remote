@@ -6,9 +6,6 @@ require 'chloride'
 
 Puppet::Face.define(:remote, '0.0.1') do
 
-  copyright 'Chris Matteson', 2017
-  license 'Apache 2 license; see COPYING'
-
   action :run do
     summary 'Run puppet on a system without a puppet agent'
     arguments '<node> [<node> ...]'
