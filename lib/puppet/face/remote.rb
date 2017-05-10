@@ -126,9 +126,9 @@ Puppet::Face.define(:remote, '0.0.1') do
                 mutex.synchronize { failed_nodes << Hash[target => install.results[target][:exit_status]] }
                 Puppet.err "Node: #{target} failed"
               end
-            rescue => e
-              Puppet.err("target:#{target} error:#{e}")
-              mutex.synchronize { failed_nodes << Hash[target => e.to_s] }
+#            rescue => e
+#              Puppet.err("target:#{target} error:#{e}")
+#              mutex.synchronize { failed_nodes << Hash[target => e.to_s] }
             end
 #          end
         end
