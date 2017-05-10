@@ -1,4 +1,4 @@
-# puppet-face-remote
+# puppet-face-puppet_remote
 
 This module provides a manifest and puppet face to enable agentless control systems utilizing unmodified puppet code.
 
