@@ -1,6 +1,6 @@
 # puppet-face-puppet_remote
 
-This module provides a manifest and puppet face to enable agentless control systems utilizing unmodified puppet code.
+This module provides a manifest and puppet face to enable agentless control systems utilizing unmodified puppet code. The face is a fork of https://github.com/puppetlabs/puppetlabs-pe_bulk_agent_install.
 
 ## Prereqs
 
