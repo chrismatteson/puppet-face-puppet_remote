@@ -2,6 +2,11 @@
 
 This module provides a manifest and puppet face to enable agentless control systems utilizing unmodified puppet code.
 
+## Prereqs
+
+The face relies on Charlie Sharpsteen's rfacter which hasn't been released as a gem yet. Copying /lib/rfacter.rb and the entire lib/rfacter/* tree from that project into the lib directory here works for now.
+https://github.com/Sharpie/rfacter
+
 ## class puppet_remote
 
 Downloads agent packages and creates NFS servers to host /opt/puppetlabs files
