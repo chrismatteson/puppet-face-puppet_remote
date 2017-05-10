@@ -37,5 +37,10 @@ class puppet_remote (
       refreshonly => true,
       cwd         => "${puppet_vardir}/remote/agents/puppet-agent-${aio_agent_build}-1.${platform_array[0]}${platform_array[1]}.${platform_array[2]}",
     }
+    file { "${puppet_vardir}/remote/agents/puppet-agent-${aio_agent_build}-1.${platform_array[0]}${platform_array[1]}.${platform_array[2]}/opt/puppetlabs/facter/facts.d/remote.txt":
+      ensure  => file,
+      mode    => '0644',
+      content => 'puppet_remote=true',
+    }
   }
 }
