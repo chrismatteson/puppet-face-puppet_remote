@@ -3,6 +3,10 @@ require 'facter'
 require 'puppet/indirector/face'
 require 'puppet/util/terminal'
 require 'chloride'
+#require_relative '../../rfacter/node'
+#require_relative '../../rfacter/util/collection'
+require 'rfacter/node'
+require 'rfacter/util/collection'
 
 Puppet::Face.define(:remote, '0.0.1') do
 
@@ -84,6 +88,10 @@ Puppet::Face.define(:remote, '0.0.1') do
                 f << "certname = #{node}\n"
                 f << "server = #{server}\n"
               }
+              rfacter = RFacter::Node.new("ssh://#{@config[:username]}:#{@config[:sudo_password]}@#{node}")
+              facts = RFacter::Util::Collection.new
+              os_info = facts.value('os', rfacter)
+              Puppet.notice(os_info)
               node.ssh_connect
               Puppet.debug("SSH status: #{node.ssh_status}")
               if [:error, :disconnected].include? node.ssh_status
