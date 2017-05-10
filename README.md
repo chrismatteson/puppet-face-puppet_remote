@@ -20,9 +20,7 @@ them back to the master, run puppet, and then clean up.
 
 ### To Do:
 
-Currently the face does not create the /etc/puppetlabs folder, nor does it create
-a unique nfs export, or build the puppet.conf. Those are handled in the remote.sh
-bash script under lib but needs to be integrated into the face
+Currently the nodes export is for all folders and the agent simply maps the appropriate one for themselves. For security reasons we should probably have it make an export that was locked to that individual host.
 
 Bug 1: If multithreading is enabled and the number of nodes to run is less than
 the number of threads, the commands end up being run against the local system, 
