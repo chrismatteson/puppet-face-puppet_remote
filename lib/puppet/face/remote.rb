@@ -3,8 +3,6 @@ require 'facter'
 require 'puppet/indirector/face'
 require 'puppet/util/terminal'
 require 'chloride'
-#require_relative '../../rfacter/node'
-#require_relative '../../rfacter/util/collection'
 require 'rfacter/node'
 require 'rfacter/util/collection'
 
@@ -70,7 +68,9 @@ Puppet::Face.define(:remote, '0.0.1') do
       failed_nodes    = []
       results         = []
       mutex           = Mutex.new
+      hostname        = Facter.value('fqdn')
       server          = Puppet.settings[:server]
+      aio_agent_build = Facter.value('aio_agent_build')
 
       Array.new(thread_count) do
         Thread.new(nodes, completed_nodes, options) do |nodes_thread, completed_nodes_thread, options_thread|
@@ -90,8 +90,11 @@ Puppet::Face.define(:remote, '0.0.1') do
               }
               rfacter = RFacter::Node.new("ssh://#{@config[:username]}:#{@config[:sudo_password]}@#{node}")
               facts = RFacter::Util::Collection.new
-              os_info = facts.value('os', rfacter)
-              Puppet.notice(os_info)
+              @os_info = Hash[JSON.parse(facts.value('os', rfacter).to_json).map { |k, v| [k.to_sym, v] }]
+              osfamily = @os_info[:family]
+              architecture = @os_info[:architecture]
+              @release = Hash[JSON.parse(@os_info[:release].to_json).map { |k, v| [k.to_sym, v] }]
+              Puppet.debug(@os_info)
               node.ssh_connect
               Puppet.debug("SSH status: #{node.ssh_status}")
               if [:error, :disconnected].include? node.ssh_status
@@ -108,8 +111,8 @@ Puppet::Face.define(:remote, '0.0.1') do
                 cmd:  "bash -c \"\
                   mkdir -p /opt/puppetlabs  &&\
                   mkdir -p /etc/puppetlabs &&\
-                  if mount | grep '/opt/puppetlabs '; then echo '/opt/puppetlabs already mounted'; else mount #{server}:/opt/puppetlabs/puppet/cache/remote/agents/puppet-agent-1.9.3-1.el7.x86_64/opt/puppetlabs /opt/puppetlabs; fi &&\
-                  if mount | grep '/etc/puppetlabs '; then echo '/etc/puppetlabs already mounted'; else mount #{server}:/opt/puppetlabs/puppet/cache/remote/nodes/#{node} /etc/puppetlabs; fi &&\
+                  if mount | grep '/opt/puppetlabs '; then echo '/opt/puppetlabs already mounted'; else mount #{hostname}:/opt/puppetlabs/puppet/cache/remote/agents/puppet-agent-#{aio_agent_build}-1.el#{@release[:major]}.#{architecture}/opt/puppetlabs /opt/puppetlabs; fi &&\
+                  if mount | grep '/etc/puppetlabs '; then echo '/etc/puppetlabs already mounted'; else mount #{hostname}:/opt/puppetlabs/puppet/cache/remote/nodes/#{node} /etc/puppetlabs; fi &&\
                   /opt/puppetlabs/bin/puppet agent -t &&\
                   umount /opt/puppetlabs &&\
                   umount /etc/puppetlabs &&\
